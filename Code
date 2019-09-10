@@ -1,0 +1,172 @@
+#include <Wire.h>
+#include <SoftwareSerial.h>
+#include <Adafruit_PWMServoDriver.h>
+
+Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver();
+
+#define SERVOMIN  100 
+#define SERVOMAX  600 
+
+int servopos;
+int en = 8;
+
+int rbl; //Right Back Leg
+int rbj; //Right Back Joint
+
+int lbl; //Left Back Leg
+int lbj; //Left Back Joint  
+
+int rfl; //Right Front Leg
+int rfj; //Right Front Joint
+
+int lfl; //Left Front Leg
+int lfj; //Left Front Joint
+
+int den=100;
+int denl=50;
+
+int a,b,c;
+//int flag=0;
+
+int bluetoothTx = 0; // bluetooth tx to 10 pin
+int bluetoothRx = 1; // bluetooth rx to 11 pin
+
+
+void setup() {
+  Serial.begin(9600);
+  pwm.begin();
+  pwm.setPWMFreq(60);
+  SoftwareSerial bluetooth(bluetoothTx, bluetoothRx);
+  bluetooth.begin(9600);
+  pinMode(en, OUTPUT);
+  
+    
+
+}
+
+void loop() {
+  digitalWrite(en, HIGH);
+  
+ int flag;
+      
+     servopos = Serial.read(); // save the received number to servopos
+     
+   Serial.println(servopos);
+    Serial.println("......");// serial print servopos current number received from bluetooth
+   
+ 
+   //READING a,b,c from NODEMCU
+  
+Serial.print(flag);
+  //FRONT
+  while(servopos=='F')
+  {  
+    flag++;
+  movement(4,3,7,1,5,2,6,0);
+  if(flag<=1)
+  {
+  break;
+  
+  }
+  
+  flag=0;
+  }
+  
+
+  //BACK
+   
+  while(servopos=='B' && flag<1)
+  {
+  movement(1,7,3,4,0,6,2,5);
+ 
+  }
+
+  //LEFT
+  while(servopos=='L' && flag<1)
+  {
+  movement(3,1,4,7,2,0,5,6);
+  
+  }  
+
+  //RIGHT
+  while(servopos=='R' && flag<1)
+  {
+  movement(7,4,1,3,6,5,0,2);
+  
+  }  
+  
+
+
+}
+void movement(int lfj,int lbj,int rfj,int rbj,int lfl,int lbl,int rfl,int rbl)
+{
+
+ //Joints
+  pwm.setPWM(rbj, 0, 450);
+  pwm.setPWM(lbj, 0, 300);
+  pwm.setPWM(lfj, 0, 300);
+  pwm.setPWM(rfj, 0, 150);
+
+  //Legs
+  pwm.setPWM(rbl, 0,500);
+  pwm.setPWM(rfl, 0,500);
+  pwm.setPWM(lfl, 0,500);
+  pwm.setPWM(lbl, 0,500);
+    
+  delay(den);
+
+  
+  //step 1
+    //pwm.setPWM(rbj, 0,450);
+    //pwm.setPWM(rfj, 0,150);
+    //delay(den);
+
+  //step 2
+  pwm.setPWM(rfl, 0,200);
+  delay(denl); 
+  pwm.setPWM(rfj, 0, 350);
+  delay(denl); 
+  pwm.setPWM(rfl, 0, 500);
+  delay(den);
+
+  //move 3
+  pwm.setPWM(lfj, 0,450);
+  pwm.setPWM(rbj, 0,300);
+  pwm.setPWM(rfj, 0,300);
+  pwm.setPWM(lbj, 0,350); //////HERE 310
+  delay(den); 
+  
+  //step 4
+  pwm.setPWM(lbl, 0,200);
+  delay(denl); 
+  pwm.setPWM(lbj, 0, 150);
+  delay(denl); 
+  pwm.setPWM(lbl, 0, 500);
+  delay(den);
+
+  
+  //step 5
+  pwm.setPWM(lfl, 0,200);
+  delay(denl); 
+  pwm.setPWM(lfj, 0, 250);
+  delay(denl); 
+  pwm.setPWM(lfl, 0, 500);
+  delay(den);
+
+  //move 6
+  pwm.setPWM(lfj, 0,300);
+  pwm.setPWM(rbj, 0,250); //////here
+  pwm.setPWM(rfj, 0,150);
+  pwm.setPWM(lbj, 0,300);
+  delay(den); 
+
+  //step 7
+  pwm.setPWM(rbl, 0,200);
+  delay(denl); 
+  pwm.setPWM(rbj, 0, 450);
+  delay(denl); 
+  pwm.setPWM(rbl, 0, 500);
+  //delay(den);
+
+
+}
